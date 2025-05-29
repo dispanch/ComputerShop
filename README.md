@@ -1,55 +1,117 @@
-# Computer  Shop | [DEMO](https://computershop-frontend.onrender.com/)
+## TODOS
 
-A full-featured _online shopping application_, that captures the usual flow of _user registration/login_, choosing products and _adding to cart_, and finally _checking out_ the order with personal details.
+- [x] Use axios for requests
+- [ ] Add highlight for current tab in navbar
+- [ ] Add wishlist feature
+- [x] Implement useReducer for optimised state management
+- [x] Add logout
 
-This project is written entirely with **TypeScript**, with best practices in mind leveraging **Redux Toolkit** and custom _typed hooks_ and an _expressive project structure_.
+## FIXME
+- [x] Footer overlapping on short content
+- [x] State doesn't update on few reloads
+- [x] Page scroll to top on route / page change
 
-Check out the readme scripts for the individual repos for [frontend](./frontend/README.md) and [backend](./backend/README.md).
+### Home Page
 
-## Demo
+- [x] Render login/signup if not logged in; render logout if logged in
+- [x] Add state for home add to cart
+- [x] Add search bar to filter products by name
+  - [x] Add interactivity
+  - [ ] Embolden found search term
+- [x] Show total number of products in cart navbar
+- [x] Show previous orders in notifications navbar
+- [x] Show user profile (basics - avatar, name, email) on navbar
 
-The entirety of the application (frontend and backend) is hosted on [Render](https://render.com/).
+### State Management
 
-Frontend (global CDN): [Try it out](https://computershop-frontend.onrender.com/)
+The global state is managed by [Redux Toolkit](https://redux-toolkit.js.org/). 
 
+Save these items at the top layer of app:
 
-_**NOTE**: Since render has restrictions for free tier web services, the startup time can take several seconds for the first request._
+    1. User login details
+    2. Products database, and
+    3. List of cart items chosen
+    4. List of previous orders
 
-## Features
+- **Products: Stateful**
+  Backend Provides initial products database as
+  A JSON array of objects with _id_:
 
-- Support logins from multiple devices, all user carts and _details are preserved_, ie, add products from another device, checkout from another afterwards
-- Saved previous orders
-- **Secure logins** with _JSON Web Tokens (**JWT**)_
-- **Fully responsive** and works well with mobiles, laptops and desktops
-- Beautiful and intuitive UI, powered by **TailwindCSS**
+  ```
+  [
+    {
+      _id: string,
+      imgLink: string,
+      name: string,
+      price: number,
+      seller: string,
+      desc: string,
+      inStock: number
+    }
+  ]
+  ```
 
-## Tech Stack
-Leverages the latest and greatest technologies for better optimization and support.
+  Converted to an object with id fields as keys:
 
-#### Frontend:
- - **ReactJS**
- - **Redux Toolkit**
- - **Typed/custom hooks**
+  ```
+  {
+    id1: {
+      imgLink: string,
+      name: string,
+      price: number,
+      seller: string,
+      desc: string,
+      inStock: number
+    }
+  ]
+  ```
 
-#### Backend:
- - **ExpressJS** _(NodeJS framework)_
- - **JWT Package** for secure authentication
- - **Mongoose** for seamless integration with **MongoDB**
+  Fetch it first time the app loads.
 
-**TypeScript** for runtime type safety.
+- **CartItems: Stateful**
+  Save a stateful object that tracks the id of the chosen item and the amount
+  required, also if wishlisted.
 
-**Husky** for pre-commit code linting and **prettier** for formatting.
+  ```
+  { _id1: amount, _id2: amount }
+  ```
 
-## Environment Variables
+  Render this object in the Cart page, with removal feature.
+  
+  Products, Cart and wishlistItems are part of a larger state object managed by
+  Redux toolkit.
 
-To run this project, you will need to add the following environment variables to your .env file. Also consult the .env.example sample file.
-
-`CONNECTIONSTR` contains the _MONGODB URI_ for associated **NoSQL database**
-
-`ACCESS_TOKEN_SECRET` secret to sign the access tokens with
-
-`REFRESH_TOKEN_SECRET` secret to sign the refresh tokens with
-
-## License
-
-[GPL v3](./LICENSE)
+  #### As in, the redux state looks like this:
+  ```
+  {
+    cart: {
+      items: {},
+      amount: 0,
+      subtotal: 0,
+      shippingCost: 0,
+      tax: 0,
+      total: 0,
+      isLoading: false,
+      error: null
+    },
+    products: {
+      items: {},
+      isLoading: true,
+      error: null
+    },
+    login: {
+      isLoggedIn: false,
+      name: null,
+      email: null,
+      accessToken: null,
+      isLoading: false,
+      error: null
+    },
+    orders: {
+      orders: [],
+      newOrderNotifications: 0,
+      isLoading: false,
+      error: null
+    }
+  }
+  ```
